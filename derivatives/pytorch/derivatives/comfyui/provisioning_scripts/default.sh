@@ -16,7 +16,7 @@ PIP_PACKAGES=(
 )
 
 NODES=(
-    "https://github.com/nunchaku-tech/ComfyUI-nunchaku/tree/v1.0.2"
+    "https://github.com/nunchaku-tech/ComfyUI-nunchaku"
     #"https://github.com/cubiq/ComfyUI_essentials"
 )
 
