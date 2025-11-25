@@ -38,6 +38,8 @@ LORA_MODELS=(
 )
 
 VAE_MODELS=(
+    # Format: "URL" oder "URL,Dateiname"
+    "https://huggingface.co/Comfy-Org/Lumina_Image_2.0_Repackaged/resolve/main/split_files/vae/ae.safetensors,vae-ft-mse-840000-ema-pruned.safetensors"
 )
 
 ESRGAN_MODELS=(
@@ -51,7 +53,6 @@ UPSCALE_MODELS=(
     "https://huggingface.co/Acly/Omni-SR/resolve/main/OmniSR_X2_DIV2K.safetensors"
     "https://huggingface.co/Acly/Omni-SR/resolve/main/OmniSR_X3_DIV2K.safetensors"
     "https://huggingface.co/Acly/Omni-SR/resolve/main/OmniSR_X4_DIV2K.safetensors"
-    ""
 )
 
 INPAINT_MODELS=(
@@ -61,6 +62,11 @@ INPAINT_MODELS=(
 DIFFUSION_MODELS=(
     "https://huggingface.co/nunchaku-tech/nunchaku-flux.1-krea-dev/resolve/main/svdq-int4_r32-flux.1-krea-dev.safetensors"
     "https://huggingface.co/nunchaku-tech/nunchaku-flux.1-kontext-dev/resolve/main/svdq-int4_r32-flux.1-kontext-dev.safetensors"
+)
+
+TEXT_ENCODERS_MODELS=(
+    "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors"
+    "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors"
 )
 
 ### DO NOT EDIT BELOW HERE UNLESS YOU KNOW WHAT YOU ARE DOING ###
@@ -97,6 +103,9 @@ function provisioning_start() {
     provisioning_get_files \
         "${COMFYUI_DIR}/models/diffusion_models" \
         "${DIFFUSION_MODELS[@]}"
+    provisioning_get_files \
+        "${COMFYUI_DIR}/models/text_encoders" \
+        "${TEXT_ENCODERS_MODELS[@]}"
     provisioning_print_end
 }
 
@@ -143,15 +152,29 @@ function provisioning_get_files() {
     shift
     arr=("$@")
     printf "Downloading %s model(s) to %s...\n" "${#arr[@]}" "$dir"
-    for url in "${arr[@]}"; do
-        printf "Downloading: %s\n" "${url}"
-        provisioning_download "${url}" "${dir}"
+    
+    # Trennung der URL und des optionalen Dateinamens
+    for item in "${arr[@]}"; do
+        # Verwende read -r mit Komma als IFS, um die URL und den Dateinamen zu trennen
+        # Sicherstellen, dass die Trennung nur für dieses Kommando gilt
+        IFS=',' read -r url filename <<< "$item"
+        
+        # trimme whitespace von filename
+        filename=$(echo "$filename" | xargs)
+        
+        if [[ -n "$filename" ]]; then
+            printf "Downloading: %s as %s\n" "${url}" "${filename}"
+            provisioning_download "${url}" "${dir}" "${filename}"
+        else
+            printf "Downloading: %s\n" "${url}"
+            provisioning_download "${url}" "${dir}"
+        fi
         printf "\n"
     done
 }
 
 function provisioning_print_header() {
-    printf "\n##############################################\n#                                            #\n#          Provisioning container            #\n#                                            #\n#         This will take some time           #\n#                                            #\n# Your container will be ready on completion #\n#                                            #\n##############################################\n\n"
+    printf "\n##############################################\n#             Provisioning container         #\n#            This will take some time        #\n# Your container will be ready on completion #\n##############################################\n\n"
 }
 
 function provisioning_print_end() {
@@ -190,18 +213,37 @@ function provisioning_has_valid_civitai_token() {
     fi
 }
 
-# Download from $1 URL to $2 file path
+# Download from $1 URL to $2 directory path, with optional $3 file name
 function provisioning_download() {
-    if [[ -n $HF_TOKEN && $1 =~ ^https://([a-zA-Z0-9_-]+\.)?huggingface\.co(/|$|\?) ]]; then
+    local url="$1"
+    local dir="$2"
+    local filename="$3" # Optionaler Dateiname
+    local auth_token=""
+    local output_param=""
+
+    if [[ -n $HF_TOKEN && $url =~ ^https://([a-zA-Z0-9_-]+\.)?huggingface\.co(/|$|\?) ]]; then
         auth_token="$HF_TOKEN"
-    elif 
-        [[ -n $CIVITAI_TOKEN && $1 =~ ^https://([a-zA-Z0-9_-]+\.)?civitai\.com(/|$|\?) ]]; then
+    elif [[ -n $CIVITAI_TOKEN && $url =~ ^https://([a-zA-Z0-9_-]+\.)?civitai\.com(/|$|\?) ]]; then
         auth_token="$CIVITAI_TOKEN"
     fi
-    if [[ -n $auth_token ]];then
-        wget --header="Authorization: Bearer $auth_token" -qnc --content-disposition --show-progress -e dotbytes="${3:-4M}" -P "$2" "$1"
+
+    if [[ -n "$filename" ]]; then
+        # Verwende -O, um den Zieldateinamen festzulegen
+        output_param="-O ${dir}/${filename}"
+        # Setze den Verzeichnisparameter (-P) auf /dev/null, da -O den Pfad enthält
+        dir_param=""
     else
-        wget -qnc --content-disposition --show-progress -e dotbytes="${3:-4M}" -P "$2" "$1"
+        # Verwende -P, um das Zielverzeichnis festzulegen
+        output_param=""
+        dir_param="-P ${dir}"
+    fi
+
+    local dotbytes="${4:-4M}" # Optionale Dotbytes-Größe
+
+    if [[ -n $auth_token ]]; then
+        wget --header="Authorization: Bearer $auth_token" -qnc --content-disposition --show-progress -e dotbytes="$dotbytes" ${dir_param} ${output_param} "$url"
+    else
+        wget -qnc --content-disposition --show-progress -e dotbytes="$dotbytes" ${dir_param} ${output_param} "$url"
     fi
 }
 
