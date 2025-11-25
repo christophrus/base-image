@@ -39,7 +39,7 @@ LORA_MODELS=(
 
 VAE_MODELS=(
     # Format: "URL" oder "URL,Dateiname"
-    "https://huggingface.co/Comfy-Org/Lumina_Image_2.0_Repackaged/resolve/main/split_files/vae/ae.safetensors,vae-ft-mse-840000-ema-pruned.safetensors"
+    "https://huggingface.co/Comfy-Org/Lumina_Image_2.0_Repackaged/resolve/main/split_files/vae/ae.safetensors,flux_vae.safetensors"
 )
 
 ESRGAN_MODELS=(
