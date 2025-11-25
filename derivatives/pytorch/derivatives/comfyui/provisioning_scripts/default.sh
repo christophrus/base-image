@@ -35,6 +35,7 @@ UNET_MODELS=(
 )
 
 LORA_MODELS=(
+    "https://huggingface.co/alimama-creative/FLUX.1-Turbo-Alpha/resolve/main/diffusion_pytorch_model.safetensors,FLUX.1-Turbo-Alpha.safetensors"
 )
 
 VAE_MODELS=(
@@ -46,6 +47,8 @@ ESRGAN_MODELS=(
 )
 
 CONTROLNET_MODELS=(
+    "https://huggingface.co/ABDALLALSWAITI/FLUX.1-dev-ControlNet-Union-Pro-2.0-fp8/resolve/main/diffusion_pytorch_model.safetensors,FLUX.1-dev-ControlNet-Union-Pro-2.0-fp8.safetensors"
+    "https://huggingface.co/alimama-creative/FLUX.1-dev-Controlnet-Inpainting-Beta/resolve/main/diffusion_pytorch_model.safetensors,FLUX.1-dev-Controlnet-Inpainting-Beta.safetensors"
 )
 
 UPSCALE_MODELS=(
@@ -67,6 +70,14 @@ DIFFUSION_MODELS=(
 TEXT_ENCODERS_MODELS=(
     "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors"
     "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors"
+)
+
+CLIP_VISION_MODELS=(
+    "https://huggingface.co/Comfy-Org/sigclip_vision_384/resolve/main/sigclip_vision_patch14_384.safetensors"
+)
+
+STYLE_MODELS=(
+    "https://files.interstice.cloud/models/flux1-redux-dev.safetensors"
 )
 
 ### DO NOT EDIT BELOW HERE UNLESS YOU KNOW WHAT YOU ARE DOING ###
@@ -106,6 +117,12 @@ function provisioning_start() {
     provisioning_get_files \
         "${COMFYUI_DIR}/models/text_encoders" \
         "${TEXT_ENCODERS_MODELS[@]}"
+    provisioning_get_files \
+        "${COMFYUI_DIR}/models/clip_vision" \
+        "${CLIP_VISION_MODELS[@]}"
+    provisioning_get_files \
+        "${COMFYUI_DIR}/models/style_models" \
+        "${STYLE_MODELS[@]}"
     provisioning_print_end
 }
 
