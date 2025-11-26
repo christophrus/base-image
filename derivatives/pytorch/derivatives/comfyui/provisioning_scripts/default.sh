@@ -20,6 +20,7 @@ NODES=(
     "https://github.com/cubiq/ComfyUI_IPAdapter_plus"
     "https://github.com/Acly/comfyui-inpaint-nodes"
     "https://github.com/Acly/comfyui-tooling-nodes"
+    "https://github.com/city96/ComfyUI-GGUF"
     "https://github.com/nunchaku-tech/ComfyUI-nunchaku"
 )
 
@@ -69,8 +70,8 @@ DIFFUSION_MODELS=(
 
 TEXT_ENCODERS_MODELS=(
     "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors"
-    #"https://huggingface.co/city96/t5-v1_1-xxl-encoder-gguf/resolve/main/t5-v1_1-xxl-encoder-Q5_K_M.gguf"
-    "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors"
+    "https://huggingface.co/city96/t5-v1_1-xxl-encoder-gguf/resolve/main/t5-v1_1-xxl-encoder-Q5_K_M.gguf"
+    #"https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors"
 )
 
 CLIP_VISION_MODELS=(
